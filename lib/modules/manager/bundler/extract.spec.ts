@@ -250,4 +250,21 @@ describe('modules/manager/bundler/extract', () => {
       ],
     });
   });
+
+  it('skips local gems in Gemfile', async () => {
+    const pathGemfile = codeBlock`
+      gem 'foo', path: 'vendor/foo'
+      `;
+
+    fs.readLocalFile.mockResolvedValueOnce(pathGemfile);
+    const res = await extractPackageFile(pathGemfile, 'Gemfile');
+    expect(res).toMatchObject({
+      deps: [
+        {
+          depName: 'foo',
+          skipReason: 'internal-package',
+        },
+      ],
+    });
+  });
 });
